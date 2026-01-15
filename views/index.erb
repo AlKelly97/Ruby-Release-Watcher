@@ -20,6 +20,12 @@
       </div>
     <% end %>
 
+    <% if flash[:error] %>
+  <div style="background: #f8d7da; color: #721c24; padding: 1rem; margin-bottom: 1rem; border-radius: 4px;">
+    <%= flash[:error] %>
+  </div>
+<% end %>
+
     <!-- Add Project form -->
     <form action="/projects" method="post" style="margin-bottom: 2rem;">
       <input type="text" name="name" placeholder="Project Name" required style="padding: 0.5rem; margin-right: 0.5rem;">
@@ -28,7 +34,7 @@
       <button type="submit">Add Project</button>
     </form>
 
-    <p>'Current video games being watched (static for now)'</p>
+    <p>Current video games and romhacks being watched (static for now)</p>
 
     <table>
       <thead>
@@ -36,7 +42,8 @@
           <th>Game</th>
           <th>Source</th>
           <th>URL</th>
-          <th></th>
+          <th>Latest Release</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -46,11 +53,27 @@
             <td><%= project[:source] %></td>
             <td><a href="<%= project[:url] %>" target="_blank"><%= project[:url] %></a></td>
             <td>
-              <form action="/projects/<%= project[:name].parameterize %>" method="post" style="display: inline;">
+              <% if project[:latest_release_tag] %>
+                <a href="<%= project[:latest_release_url] %>" target="_blank"><%= project[:latest_release_tag] %></a>
+                <div style="font-size: 0.85em; color: #666;"><%= project[:latest_release_published_at] %>
+                </div>
+              <% else %>
+              <em>Not fetched</em>
+              <% end %>
+            </td>
+
+            <td>
+              <% if project[:source].to_s.downcase == "github" %>
+                <form action="/projects/<%= project[:id] %>/refresh" method="post" style="display:inline;">
+                  <button type="submit">Refresh</button>
+                </form>
+              <% end %>
+
+              <form action="/projects/<%= project[:id] %>" method="post" style="display: inline;">
                 <input type="hidden" name="_method" value="DELETE">
                 <button type="submit" onclick="return confirm('Delete?')">Delete</button>
               </form>
-            </td>
+          </td>
           </tr>
         <% end %>
       </tbody>

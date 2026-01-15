@@ -8,3 +8,5 @@ gem "puma"
 gem "rackup"
 gem "activesupport", require: false
 gem 'sinatra-flash'
+gem 'sqlite3'
+gem 'sequel'

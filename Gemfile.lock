@@ -44,6 +44,8 @@ GEM
       rack (>= 3)
     ruby2_keywords (0.0.5)
     securerandom (0.4.1)
+    sequel (5.100.0)
+      bigdecimal
     sinatra (4.2.1)
       logger (>= 1.6.0)
       mustermann (~> 3.0)
@@ -59,22 +61,24 @@ GEM
       tilt (~> 2.0)
     sinatra-flash (0.3.0)
       sinatra (>= 1.0.0)
+    sqlite3 (2.9.0-x86_64-darwin)
     tilt (2.7.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     uri (1.1.1)
 
 PLATFORMS
-  ruby
   x86_64-darwin-23
 
 DEPENDENCIES
   activesupport
   puma
   rackup
+  sequel
   sinatra
   sinatra-contrib
   sinatra-flash
+  sqlite3
 
 CHECKSUMS
   activesupport (8.1.2) sha256=88842578ccd0d40f658289b0e8c842acfe9af751afee2e0744a7873f50b6fdae
@@ -98,9 +102,11 @@ CHECKSUMS
   rackup (2.3.1) sha256=6c79c26753778e90983761d677a48937ee3192b3ffef6bc963c0950f94688868
   ruby2_keywords (0.0.5) sha256=ffd13740c573b7301cf7a2e61fc857b2a8e3d3aff32545d6f8300d8bae10e3ef
   securerandom (0.4.1) sha256=cc5193d414a4341b6e225f0cb4446aceca8e50d5e1888743fac16987638ea0b1
+  sequel (5.100.0) sha256=cb0329b62287a01db68eead46759c14497a3fae01b174e2c41da108a9e9b4a12
   sinatra (4.2.1) sha256=b7aeb9b11d046b552972ade834f1f9be98b185fa8444480688e3627625377080
   sinatra-contrib (4.2.1) sha256=10d091c944d268aa910c618ea40a3c3ebe0533e6e32990d84af92235a3d26b4a
   sinatra-flash (0.3.0) sha256=fef044da4341840dcddc6f1cc9582c2babc6932aefbf1b00cda66f3bf6f717ee
+  sqlite3 (2.9.0-x86_64-darwin) sha256=59fe51baa3cb33c36d27ce78b4ed9360cd33ccca09498c2ae63850c97c0a6026
   tilt (2.7.0) sha256=0d5b9ba69f6a36490c64b0eee9f6e9aad517e20dcc848800a06eb116f08c6ab3
   tzinfo (2.0.6) sha256=8daf828cc77bcf7d63b0e3bdb6caa47e2272dcfaf4fbfe46f8c3a9df087a829b
   uri (1.1.1) sha256=379fa58d27ffb1387eaada68c749d1426738bd0f654d812fcc07e7568f5c57c6
