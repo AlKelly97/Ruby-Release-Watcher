@@ -42,7 +42,7 @@ class ReleaseWatcher < Sinatra::Base
 
       req = Net::HTTP::Get.new(uri)
       req["Accept"] = "application/vnd.github+json"
-      req["X-Github-Api-Version"] = "2022-11-28"
+      req["X-GitHub-Api-Version"] = "2022-11-28"
 
       res = Net::HTTP.start(uri.host, uri.port, use_ssl: true) do |http|
         http.request(req)
@@ -65,31 +65,42 @@ end
     name = params[:name]&.strip
     source = params[:source]&.strip
     url = params[:url]&.strip
+    notes = params[:notes]&.strip
 
     if name.blank? || source.blank? || url.blank?
       flash[:error] = "All fields are required"
       redirect "/"
     end
 
-    exists = Projects.where(name: name).count > 0
-    if exists
-      flash[:error] = 'Project already exists'
-      redirect to("/")
+    source_key = source.to_s.downcase.strip
+    source_key = "website" unless %w[github steam website].include?(source_key)
+
+    owner = repo = nil
+    if source_key == "github"
+      owner_repo = parse_github_repo(url)
+      if owner_repo.nil?
+        flash[:error] = "Github source requires a URL like https://github.com/owner/repo"
+        redirect "/"
+      end
+      owner, repo = owner_repo
     end
 
-    owner_repo = parse_github_repo(url) if source.downcase == "github"
-    owner, repo = owner_repo if owner_repo
-
-
+  begin
     Projects.insert(
       name: name,
       source: source,
+      source_key: source_key,
       url: url,
+      notes: notes,
       github_owner: owner,
       github_repo: repo,
       created_at: Time.now,
       updated_at: Time.now
     )
+  rescue Sequel::UniqueConstraintViolation
+    flash[:error] = "That project is already being tracked"
+    redirect "/"
+  end
 
     flash[:success] = "Added '#{name}'"
     redirect "/"
@@ -104,8 +115,8 @@ end
       redirect to ("/")
     end
 
-    if project[:source].to_s.downcase != "github" || project[:github_owner].blank? || project[:github_repo].blank?
-      flash[:error] = "Refresh only supported for Github projects. (valid repo URL required.)"
+    if project[:source_key] != "github" || project[:github_owner].blank? || project[:github_repo].blank?
+      flash[:error] = "Refresh is only supported for GitHub projects with valid repo info"
       redirect to ("/")
     end
 
@@ -132,7 +143,7 @@ end
     cooldown_hours = 6
     cutoff = Time.now - (cooldown_hours * 60 * 60)
 
-    github_projects = Projects.where(Sequel.ilike(:source, "github")).all
+    github_projects = Projects.where(source_key: "github").all
 
     refreshed = 0
     skipped = 0
