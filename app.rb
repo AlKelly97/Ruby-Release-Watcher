@@ -120,12 +120,51 @@ end
       latest_release_tag: latest[:tag_name],
       latest_release_url: latest[:html_url],
       latest_release_published_at: latest[:published_at] ? Time.parse(latest[:published_at]) : nil,
+      last_checked_at: Time.now,
       updated_at: Time.now
     )
 
     flash[:success] = "Refreshed '#{project[:name]}'"
     redirect to ("/")
   end
+
+  post "/refresh_all" do
+    cooldown_hours = 6
+    cutoff = Time.now - (cooldown_hours * 60 * 60)
+
+    github_projects = Projects.where(Sequel.ilike(:source, "github")).all
+
+    refreshed = 0
+    skipped = 0
+
+    github_projects.each do |project|
+      #skip if checked recently
+      if project[:last_checked_at] && project[:last_checked_at] > cutoff
+        skipped += 1
+        next
+      end
+
+      #Skip if repo parsing is missing
+      next if project[:github_owner].blank? || project[:github_repo].blank?
+
+      latest = fetch_github_latest_release(project[:github_owner], project[:github_repo])
+      next if latest.nil?
+
+      Projects.where(id: project[:id]).update(
+        latest_release_tag: latest[:tag_name],
+        latest_release_url: latest[:html_url],
+        latest_release_published_at: latest[:published_at] ? Time.parse(latest[:published_at]) : nil,
+        last_checked_at: Time.now,
+        updated_at: Time.now
+      )
+
+      refreshed += 1
+    end
+
+
+    flash[:success] = "Refreshed #{refreshed} projects. Skipped (cooldown): #{skipped}"
+    redirect to ("/")
+    end
 
 
   delete "/projects/:id" do
