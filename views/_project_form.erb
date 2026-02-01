@@ -1,0 +1,16 @@
+<section style="margin-bottom: 1.5rem;">
+  <form action="/projects" method="post" style="margin-bottom: 0.75rem;">
+    <input type="text" name="name" placeholder="Project name" required style="padding: 0.5rem; margin-right: 0.5rem;">
+    <select name="source" placeholder="Source (e.g., github)" required style="padding: 0.5rem; margin-right: 0.5rem;">
+        <option value="github">github</option>
+        <option value="steam">steam</option>
+        <option value="website">website</option>
+      </select>
+    <input type="url" name="url" placeholder="Project URL" required style="padding: 0.5rem; margin-right: 0.5rem;">
+    <button type="submit">Add</button>
+  </form>
+
+  <form action="/refresh_all" method="post">
+    <button type="submit">Refresh all GitHub</button>
+  </form>
+</section>

@@ -14,6 +14,8 @@ DB = Sequel.sqlite("db/release_watcher.sqlite3")
 Projects = DB[:projects]
 
 class ReleaseWatcher < Sinatra::Base
+  set :root, File.dirname(__FILE__)
+
   configure do
     register Sinatra::Flash
     enable :sessions
@@ -56,6 +58,14 @@ class ReleaseWatcher < Sinatra::Base
         html_url: json["html_url"],
         published_at: json["published_at"]
       }
+    end
+
+    def partial(name, locals = {})
+      erb(:"_#{name}", layout: false, locals: locals)
+    end
+
+    def github_prjoject?(project)
+      project[:source].to_s.downcase.strip == "github"
     end
 end
 
@@ -192,6 +202,7 @@ end
   end
 
   get "/" do
+    @title = "Release Watcher"
     @projects = Projects.order(:name).all
     erb :index
   end
