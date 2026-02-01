@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title><%= @title || "Release Watcher" %></title>
+        <link rel="stylesheet" href="/app.css">
+    </head>
+    <body>
+      <header style ="margin-bottom: 1rem;">
+        <h1 style="margin: 0;">Release Watcher</h1>
+        <p class="muted" style="margin: 0.25rem 0 0 0;">Track Releases of your favourite projects (Github currently, more sources later on..).</p>
+      </header>
+
+        <%= erb :_flash, layout: false %>
+
+        <%= yield %>
+
+    </body>
+</html>
