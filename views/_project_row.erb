@@ -13,11 +13,11 @@
             </td>
 
             <td>
-              <% if project[:source_key] == "github" %>
+               
                 <form action="/projects/<%= project[:id] %>/refresh" method="post" style="display:inline;">
                   <button type="submit">Refresh</button>
                 </form>
-              <% end %>
+              
 
               <form action="/projects/<%= project[:id] %>" method="post" style="display: inline;">
                 <input type="hidden" name="_method" value="DELETE">
