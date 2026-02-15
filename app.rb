@@ -26,19 +26,23 @@ class ReleaseWatcher < Sinatra::Base
     register Sinatra::Reloader
   end
 
-  helpers do 
+  helpers do
+    
     def parse_github_repo(url)
       uri = URI(url)
+      host = uri.host.to_s.downcase
+        return nil unless host == "github.com" || host == "www.github.com"
       parts = uri.path.split("/").reject(&:blank?)
-      return nil if parts.length < 2
+        return nil if parts.length < 2
       owner = parts[0]
       repo = parts[1].sub(/\.git\z/, "")
       [owner, repo]
-    rescue URI::InvalidURIError
+      rescue URI::InvalidURIError
       nil
     end
     
     def fetch_github_latest_release(owner, repo)
+
       api_url = "https://api.github.com/repos/#{owner}/#{repo}/releases/latest"
       uri = URI(api_url)
 
@@ -46,8 +50,24 @@ class ReleaseWatcher < Sinatra::Base
       req["Accept"] = "application/vnd.github+json"
       req["X-GitHub-Api-Version"] = "2022-11-28"
 
+      token = ENV["GITHUB_TOKEN"]
+      req["Authorization"] = "Bearer #{token}" if token && !token.strip.empty?
+      req["User-Agent"] = "Ruby-Release-Watcher"
+
       res = Net::HTTP.start(uri.host, uri.port, use_ssl: true) do |http|
         http.request(req)
+      end
+
+      return :no_releases if res.code.to_i == 404
+
+      if [403, 429].include?(res.code.to_i) && res["x-ratelimit-remaining"] == "0"
+        reset_epoch = res["x-ratelimit-reset"]&.to_i
+        retry_at = reset_epoch && reset_epoch > Time.now.to_i ? Time.at(reset_epoch) : nil
+
+        retry_after = res["retry-after"]&.to_i
+        retry_at = retry_after && retry_after > 0 ? (Time.now.utc + retry_after) : reset_time
+
+        return {error: :rate_limited, retry_at: retry_at }
       end
 
       return nil unless res.is_a?(Net::HTTPSuccess)
@@ -58,6 +78,7 @@ class ReleaseWatcher < Sinatra::Base
         html_url: json["html_url"],
         published_at: json["published_at"]
       }
+
     end
 
     def partial(name, locals = {})
@@ -132,8 +153,23 @@ end
 
     latest = fetch_github_latest_release(project[:github_owner], project[:github_repo])
 
-    if latest.nil?
-      flash[:error] = "Could not fetch latest release (repo may have no releases, or we've hit a rate limit..)"
+   if latest.is_a?(Hash) && latest[:error] == :rate_limited
+  when_text = latest[:retry_at] ? latest[:retry_at].to_s : "later"
+  flash[:error] = "GitHub rate limit hit. Try again after: #{when_text}"
+  redirect "/"
+  end 
+
+    case latest
+    when :no_releases
+      flash[:error] = "No Github releases published for this repo"
+      redirect to ("/")
+
+    when :rate_limited
+      flash[:error] = "Github Rate Limit Exceeded. Please try again later"
+      redirect to ("/")
+
+    when nil
+      flash[:error] = "Failed to fetch latest release (unexpected error)"
       redirect to ("/")
     end
 
@@ -157,6 +193,10 @@ end
 
     refreshed = 0
     skipped = 0
+    skipped_missing_repo = 0
+    no_releases = 0
+    rate_limited = 0
+    api_errors = 0
 
     github_projects.each do |project|
       #skip if checked recently
@@ -166,10 +206,30 @@ end
       end
 
       #Skip if repo parsing is missing
-      next if project[:github_owner].blank? || project[:github_repo].blank?
+      if project[:github_owner].blank? || project[:github_repo].blank?
+        skipped_missing_repo += 1
+        next
+      end
 
       latest = fetch_github_latest_release(project[:github_owner], project[:github_repo])
-      next if latest.nil?
+
+      if latest.is_a?(Hash) && latest[:error] == :rate_limited
+      when_text = latest[:retry_at] ? latest[:retry_at].to_s : "later"
+      flash[:error] = "GitHub rate limit hit. Try again after: #{when_text}"
+      redirect "/"
+      end
+      
+      case latest
+      when :no_releases
+        no_releases += 1
+        next
+      when :rate_limited
+        rate_limited += 1
+        next
+      when nil
+        api_errors += 1
+        next
+      end
 
       Projects.where(id: project[:id]).update(
         latest_release_tag: latest[:tag_name],
@@ -183,7 +243,7 @@ end
     end
 
 
-    flash[:success] = "Refreshed #{refreshed} projects. Skipped (cooldown): #{skipped}"
+    flash[:success] = "Refreshed #{refreshed} projects. Skipped (cooldown): #{skipped}, Skipped (missing repo): #{skipped_missing_repo}, No releases: #{no_releases}, Rate limited: #{rate_limited}, API errors: #{api_errors}"
     redirect to ("/")
     end
 
