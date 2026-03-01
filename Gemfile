@@ -10,3 +10,6 @@ gem "activesupport", require: false
 gem 'sinatra-flash'
 gem 'sqlite3'
 gem 'sequel'
+gem 'minitest'
+gem 'rack-test'
+gem 'rake'
