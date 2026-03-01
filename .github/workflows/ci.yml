@@ -9,6 +9,7 @@ jobs:
 
       - uses: ruby/setup-ruby@v1
         with:
+          ruby-version: 3.x
           bundler-cache: true
 
       - run: bundle exec rake test
