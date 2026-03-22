@@ -1,12 +1,12 @@
 require_relative "test_helper"
 
 class AppTest < Minitest::Test
-    def homepage_loads
+    def test_homepage_loads
         get "/"
         assert last_response.ok?, "Expected GET / to be 200 OK, got #{last_response.status}"
     end
 
-    def add_project_requires_all_fields
+    def test_add_project_requires_all_fields
         post "/projects", {name: "" , source: "github", url: ""}
 
         assert_equal 302, last_response.status, "Expected redirect when fields are missing" 
@@ -16,7 +16,7 @@ class AppTest < Minitest::Test
         assert_includes last_response.body, "All fields are required"
     end 
 
-    def add_project_rejects_non_GH_url_when_source_is_GH
+    def test_add_project_rejects_non_GH_url_when_source_is_GH
         post "/projects", { name: "BadGH", source: "github", url: "https://example.com/foo/bar" }
 
         assert_equal 302, last_response.status, "Expected rediret on invalid Github URL" 
@@ -24,12 +24,12 @@ class AppTest < Minitest::Test
         follow_redirect!
 
         assert(
-            last_response.body.include?("valid GitHub URL") || last_response.body.include?("GitHub Repo URL"),
+            last_response.body.include?("Github source requires a URL like"),
             "Expected error message about invalid GitHub URL"
         )
     end
 
-    def add_project_accepts_valid_GH_repo_URL
+    def test_add_project_accepts_valid_GH_repo_URL
         post "/projects", { name: "GoodGH", source: "github", url: "https://github.com/sinatra/sinatra" }
 
         assert_equal 302, last_response.status, "Expected redirect after successful project addition" 
@@ -39,7 +39,7 @@ class AppTest < Minitest::Test
         assert_includes last_response.body, "Added"
     end
 
-    def refresh_non_GH_project_failure
+    def test_refresh_non_GH_project_failure
 
         post "/projects", { name: "NonGH", source: "website", url: "https://example.com" }
         follow_redirect!
