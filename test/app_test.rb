@@ -40,10 +40,17 @@ class AppTest < Minitest::Test
     end
 
     def test_refresh_non_GH_project_failure
-
         post "/projects", { name: "NonGH", source: "website", url: "https://example.com" }
         follow_redirect!
 
-        skip "Add a predictable non-GH project and use its ID here for testing"
+        project = DB[:projects].where(name: "NonGH").first
+        refute_nil project, "Expected project to be created in DB"
+
+        post "/projects/#{project[:id]}/refresh"
+
+        assert_equal 302, last_response.status, "Expected redirect when refreshing non-GH project"
+        follow_redirect!
+
+        assert_includes last_response.body, "Refresh is only supported for GitHub projects with valid repo info"
     end
 end
