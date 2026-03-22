@@ -1,16 +1,35 @@
-<section style="margin-bottom: 1.5rem;">
-  <form action="/projects" method="post" style="margin-bottom: 0.75rem;">
-    <input type="text" name="name" placeholder="Project name" required style="padding: 0.5rem; margin-right: 0.5rem;">
-    <select name="source" placeholder="Source (e.g., github)" required style="padding: 0.5rem; margin-right: 0.5rem;">
-        <option value="github">github</option>
-        <option value="steam">steam</option>
-        <option value="website">website</option>
-      </select>
-    <input type="url" name="url" placeholder="Project URL" required style="padding: 0.5rem; margin-right: 0.5rem;">
-    <button type="submit">Add</button>
+<section class="form-section">
+  <h2>Add Project</h2>
+
+  <form action="/projects" method="post" class="project-form">
+    <div class="form-row">
+      <div class="form-group">
+        <label for="name">Project name</label>
+        <input type="text" id="name" name="name" placeholder="" required>
+      </div>
+
+      <div class="form-group">
+        <label for="source">Source</label>
+        <select id="source" name="source" required>
+          <option value="github">GitHub</option>
+          <option value="steam">Steam</option>
+          <option value="website">Website</option>
+        </select>
+      </div>
+
+      <div class="form-group form-group--wide">
+        <label for="url">Project URL</label>
+        <input type="url" id="url" name="url" placeholder="" required>
+        <small>For GitHub projects, use a repo URL like https://github.com/owner/repo</small>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit">Add Project</button>
+    </div>
   </form>
 
-  <form action="/refresh_all" method="post">
-    <button type="submit">Refresh all GitHub</button>
+  <form action="/refresh_all" method="post" class="refresh-all-form">
+    <button type="submit" class="button-secondary">Refresh all GitHub</button>
   </form>
 </section>
