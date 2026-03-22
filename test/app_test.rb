@@ -24,7 +24,7 @@ class AppTest < Minitest::Test
         follow_redirect!
 
         assert(
-            last_response.body.include?("valid GitHub URL") || last_response.body.include?("GitHub Repo URL"),
+            last_response.body.include?("Github source requires a URL like"),
             "Expected error message about invalid GitHub URL"
         )
     end
