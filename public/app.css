@@ -2,29 +2,58 @@
 
 body {
     font-family: system-ui, sans-serif;
-    margin: 2rem;
+    background: #f6f8fb;
+    color: #222;
+    margin: 0;
+    padding: 24px;
 }
 
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    background: #ffffff;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-header h1 {
+  margin: 0 0 8px 0;
+}
+
+.page-intro {
+  margin: 0;
+  color: #666;
+}
+
+
 .flash {
-    padding: 1rem;
-    margin-bottom: 1rem;
-    border-radius: 4px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    border-radius: 8px;
+    font-weight: 600;
 }
 
 .flash--success {
-    background: #d4edda;
-    color: #155724;
+    background: #e8f7ee;
+    border: 1px solid #7acb96;
+    color: #1f6b3b;
 }
 
 .flash--error {
-    background: #f8d7da;
-    color: #721c24;
+    background: #fdecec;
+    border: 1px solid #e29b9b;
+    color: #8a1f1f;
 }
 
 table {
     border-collapse: collapse;
     width: 100%;
-    max-width: 1000px
+    max-width: 1000px;
 }
 
 th, td {
@@ -35,7 +64,7 @@ th, td {
 }
 
 th {
-    background: #f5f5f5
+    background: #f5f5f5;
 }
 
 .muted {
@@ -43,6 +72,88 @@ th {
     font-size: 0.85em;
 }
 
-.actions from {
+.actions form {
     display: inline;
+}
+
+button {
+  padding: 10px 14px;
+  border: none;
+  border-radius: 8px;
+  background: #2f6fed;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+button:hover {
+  background: #1f57c7;
+}
+
+.button-secondary {
+  background: #4b5563;
+}
+
+.button-secondary:hover {
+  background: #374151;
+}
+
+.button-danger {
+  background: #c94a4a;
+}
+
+.button-danger:hover {
+  background: #a73737;
+}
+
+.form-section {
+  margin-bottom: 32px;
+}
+
+.project-form {
+  margin-bottom: 12px;
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  min-width: 180px;
+  flex: 1;
+}
+
+.form-group--wide {
+  flex: 2;
+}
+
+label {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+input,
+select,
+button {
+  font: inherit;
+}
+
+input,
+select {
+  padding: 10px 12px;
+  border: 1px solid #cfd6e4;
+  border-radius: 8px;
+}
+
+small {
+  margin-top: 6px;
+  color: #666;
+}
+
+.form-actions {
+  margin-top: 16px;
 }

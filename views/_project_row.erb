@@ -21,7 +21,7 @@
 
               <form action="/projects/<%= project[:id] %>" method="post" style="display: inline;">
                 <input type="hidden" name="_method" value="DELETE">
-                <button type="submit" onclick="return confirm('Delete?')">Delete</button>
+                <button type="submit" class="button-danger" onclick="return confirm('Delete?')">Delete</button>
               </form>
             </td>
         </tr>
